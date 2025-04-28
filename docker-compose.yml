@@ -1,0 +1,66 @@
+x-common-backend: &common-backend
+  build: &common-build
+    context: ./backend
+    dockerfile: Dockerfile
+  volumes:
+    - qiptflow-go-mod:/go/pkg/mod
+
+services:
+  backend-prod:
+    <<: *common-backend
+    build:
+      <<: *common-build
+      target: prod
+    profiles: [prod]
+    ports:
+      - "${HOST_PORT:-8080}:${CONTAINER_PORT:-8080}"
+    restart: "${PRODUCTION_BACKEND_RESTART_POLICY:-unless-stopped}"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${CONTAINER_PORT:-8080}/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+
+  backend-dev:
+    <<: *common-backend
+    build:
+      <<: *common-build
+      target: dev
+    profiles: [dev]
+    ports:
+      - "${DEV_HOST_PORT:-3000}:${CONTAINER_PORT:-8080}"
+    volumes:
+      - "${DEV_VOLUMES:-./backend:/app:cached}"
+    restart: "${DEVELOP_BACKEND_RESTART_POLICY:-no}"
+    environment:
+      - TZ=UTC          # Фиксируем часовой пояс
+      - DEBUG=true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
+        mode: "non-blocking"
+    cap_add:
+      - SYS_ADMIN
+      - DAC_OVERRIDE
+    tmpfs:
+      - "/app/tmp"
+
+
+volumes:
+  qiptflow-go-mod:
+    name: qiptflow-go-mod
