@@ -1,0 +1,17 @@
+root = "."
+
+[build]
+cmd = "CGO_ENABLED=0 GOOS=linux go build -ldflags='-w -s' -o ./bin/qiptflow ."
+bin = "./bin/qiptflow"
+full_build_log = true
+poll = true
+poll_interval = 300
+delay = 800
+kill_delay = "3s"
+exclude_dir = ["bin", "tmp", "vendor", ".git"]
+exclude_file = ["*.log", "*.md"]
+
+[log]
+color = true
+show_timestamp = true
+time_format = "15:04:05"
