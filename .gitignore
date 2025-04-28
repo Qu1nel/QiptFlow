@@ -189,5 +189,6 @@ poetry.toml
 pyrightconfig.json
 
 # Custom
+.vscode/
 bin/
 tmp/
