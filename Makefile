@@ -24,6 +24,13 @@ else
     ENV_SOURCE := $(YELLOW)default values$(RESET)
 endif
 
+# Определенеи текущей ветки
+ifneq ($(wildcard .git/HEAD),)
+    CURRENT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+else
+    CURRENT_BRANCH := main
+endif
+
 # Определяем PROFILE
 ifdef PROFILE
     PROFILE := $(PROFILE)

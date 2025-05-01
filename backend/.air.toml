@@ -1,16 +1,13 @@
 root = "."
-tmp_dir = "tmp"
+tmp_dir = "/tmp"
 
 [build]
     cmd = "go build -o ./bin/main ."
     bin = "bin/main"
-    include_ext = ["go", "tpl", "tmpl", "html"]
-    exclude_dir = ["assets", "vendor", "static", "tmp"]
-    exclude_file = []
-    exclude_unchanged = true
-    follow_symlink = false
     full_build_log = true
     delay = 800
+    poll = true
+    poll_interval = 300
 
 [log]
     color = true
@@ -23,6 +20,3 @@ tmp_dir = "tmp"
     error = "red"
     warning = "yellow"
     time = "blue"
-
-[misc]
-    clean_on_exit = true

@@ -43,6 +43,7 @@ services:
     ports:
       - "${DEV_HOST_PORT:-3000}:${CONTAINER_PORT:-8080}"
     volumes:
+      - qiptflow-config:/app/configs/backend/
       - "${DEV_VOLUMES:-./backend:/app:cached}"
     restart: "${DEVELOP_BACKEND_RESTART_POLICY:-no}"
     environment:
@@ -63,7 +64,11 @@ services:
       - SYS_ADMIN
       - DAC_OVERRIDE
     tmpfs:
-      - "/app/tmp"
+      - "/app/tmp/"
+      - "/app/configs/backend/"
+
+volumes:
+  qiptflow-config:
 
 networks:
   qiptflow-networks:
