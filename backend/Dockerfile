@@ -3,7 +3,7 @@ ARG ALPINE_VERSION=3.21
 
 # Общий этап для кэширования зависимостей
 FROM golang:${GO_VERSION}-alpine AS deps
-RUN apk add --no-cache git ca-certificates
+RUN apk add --no-cache curl git ca-certificates
 WORKDIR /app
 
 COPY backend/go.mod backend/go.sum ./
@@ -16,7 +16,7 @@ WORKDIR /app
 
 COPY --from=deps /app/go.mod /app/go.sum ./
 COPY --from=deps /go/pkg /go/pkg
-COPY configs/backend/config.yaml /app/configs/backend/config.yaml
+COPY ./configs/backend/config.yaml /app/configs/backend/config.yaml
 COPY ./backend .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags='-w -s' -o ./bin/main .
@@ -35,10 +35,12 @@ CMD ["/app/bin/main"]
 
 # Dev стадия (только для hot-reload)
 FROM golang:${GO_VERSION}-alpine AS dev
-RUN apk add --no-cache bash inotify-tools && go install github.com/air-verse/air@latest
+RUN apk add --no-cache bash curl inotify-tools && go install github.com/air-verse/air@latest
 WORKDIR /app
 
-COPY . .
-COPY configs/backend/config.yaml /app/configs/backend/config.yaml
+COPY --from=deps /app/go.mod /app/go.sum ./
+COPY --from=deps /go/pkg /go/pkg
+COPY --from=builder /app/configs/backend/config.yaml /app/configs/backend/config.yaml
+RUN ls -l /app/configs/backend/config.yaml # <--- Добавляем эту строку
 
 CMD ["air", "-c", ".air.toml"]
