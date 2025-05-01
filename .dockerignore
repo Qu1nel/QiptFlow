@@ -1,1 +1,30 @@
+# Git
 .git
+
+# Dependency directories
+vendor/
+
+# Logs
+*.log
+log/
+
+# Temporary files
+tmp/
+**/tmp/*
+
+# Editor and IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.DS_Store
+
+# Go executables
+*.exe
+
+# Node modules (if any)
+node_modules/
+
+# Air tmp
+backend/tmp
+backend/bin/main
