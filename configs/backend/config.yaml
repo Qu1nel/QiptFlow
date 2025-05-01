@@ -1,5 +1,23 @@
 server:
+  host: 0.0.0.0
   port: 8080
-  host: localhost
-
-log_level: debug
+log_level: info
+cors:
+  allow_origins:
+    - "*"
+gzip:
+  level: 5
+logger:
+  encoding: console
+  output_paths:
+    - "stdout"
+    - "logs/app.log"
+  error_output_paths:
+    - "stderr"
+  log_rotation:
+    enabled: true
+    filename: "logs/app.log"
+    max_size: 100
+    max_backups: 5
+    max_age: 30
+    compress: true 
