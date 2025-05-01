@@ -1,17 +1,28 @@
 root = "."
+tmp_dir = "tmp"
 
 [build]
-cmd = "CGO_ENABLED=0 GOOS=linux go build -ldflags='-w -s' -o ./bin/qiptflow ."
-bin = "./bin/qiptflow"
-full_build_log = true
-poll = true
-poll_interval = 300
-delay = 800
-kill_delay = "3s"
-exclude_dir = ["bin", "tmp", "vendor", ".git"]
-exclude_file = ["*.log", "*.md"]
+    cmd = "go build -o ./bin/main ."
+    bin = "bin/main"
+    include_ext = ["go", "tpl", "tmpl", "html"]
+    exclude_dir = ["assets", "vendor", "static", "tmp"]
+    exclude_file = []
+    exclude_unchanged = true
+    follow_symlink = false
+    full_build_log = true
+    delay = 800
 
 [log]
-color = true
-show_timestamp = true
-time_format = "15:04:05"
+    color = true
+    show_timestamp = true
+    time_format = "15:04:05"
+
+[color]
+    main = "magenta"
+    info = "gray"
+    error = "red"
+    warning = "yellow"
+    time = "blue"
+
+[misc]
+    clean_on_exit = true
