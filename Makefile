@@ -1,7 +1,7 @@
 # Конфигурация
 ##############################################################################
 
-path := .
+PROJECT_NAME := qiptflow
 DOCKER_COMPOSE := docker-compose
 DOCKER := docker
 
@@ -12,10 +12,10 @@ YELLOW := \\033[1;33m
 BLUE   := \\033[0;36m
 RESET  := \\033[0m
 
-
 # Определения окружения
 ##############################################################################
 
+# Определяем ENV_FILE и ENV_SOURCE
 ifneq ($(wildcard .env),)
     ENV_FILE := .env
     ENV_SOURCE := $(YELLOW).env file$(RESET)
@@ -24,39 +24,35 @@ else
     ENV_SOURCE := $(YELLOW)default values$(RESET)
 endif
 
-ifneq ($(wildcard .git/HEAD),)
-    CURRENT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-else
-    CURRENT_BRANCH := main
-endif
-
+# Определяем PROFILE
 ifdef PROFILE
     PROFILE := $(PROFILE)
 else
-    ifeq ($(CURRENT_BRANCH),main)
-        PROFILE := prod
-    else
-        PROFILE := dev
-    endif
+    # Используем значение из переменной окружения или git branch или 'dev' по умолчанию
+    PROFILE := $(or $(shell echo $$PROFILE),$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null),dev)
 endif
 
+# Определяем ENV_NAME
 ifeq ($(PROFILE),prod)
     ENV_NAME := production
 else
     ENV_NAME := development
 endif
 
+# Общие параметры Docker Compose
+COMPOSE_FLAGS := $(if $(ENV_FILE),--env-file $(ENV_FILE),) --profile $(PROFILE)
+
 # Основные команды
 ##############################################################################
 
-.PHONY: run prod dev stop clean help
+.PHONY: run prod dev stop clean help build test logs
 
 .DEFAULT_GOAL := help
 
 run: check-env  ## Launch app with auto-detected profile
 	@echo -e "\n$(BLUE)Starting $(ENV_NAME) environment ($(ENV_SOURCE))...$(RESET)"
 	@echo -e "$(GREEN)Active server profile:$(RESET) $(YELLOW)$(PROFILE)$(RESET)"
-	@$(DOCKER_COMPOSE) $(if $(ENV_FILE),--env-file $(ENV_FILE),) --profile $(PROFILE) up --build
+	@$(DOCKER_COMPOSE) $(COMPOSE_FLAGS) up --build
 
 prod:  ## Launch production environment
 	@$(MAKE) run PROFILE=prod
@@ -72,6 +68,19 @@ clean: stop  ## Remove containers and volumes
 	@echo -e "\n$(RED)Removing containers and volumes...$(RESET)"
 	@$(DOCKER_COMPOSE) down -v
 	@echo -e "$(GREEN)Clean complete!$(RESET)"
+
+build: check-docker ## Build docker images
+	@echo -e "\n$(BLUE)Starting $(ENV_NAME) environment ($(ENV_SOURCE))...$(RESET)"
+	@echo -e "$(GREEN)Active server profile:$(RESET) $(YELLOW)$(PROFILE)$(RESET)"
+	@echo -e "$(YELLOW)Building Docker images...$(RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FLAGS) build
+
+test: check-docker ## Run tests
+	@echo -e "$(YELLOW)TEST NOT IMPLEMETED$(RESET)"
+
+logs: check-docker ## View logs
+	@echo -e "$(YELLOW)Viewing logs...$(RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FLAGS) logs -f
 
 # Верификация использования команд
 ##############################################################################

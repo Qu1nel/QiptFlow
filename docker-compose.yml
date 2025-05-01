@@ -2,8 +2,8 @@ x-common-backend: &common-backend
   build: &common-build
     context: .
     dockerfile: ./backend/Dockerfile
-  volumes:
-    - qiptflow-go-mod:/go/pkg/mod
+  networks:
+    - qiptflow-networks
 
 services:
   backend-prod:
@@ -12,9 +12,9 @@ services:
       <<: *common-build
       target: prod
     profiles: [prod]
+    restart: "${PRODUCTION_BACKEND_RESTART_POLICY:-unless-stopped}"
     ports:
       - "${HOST_PORT:-8080}:${CONTAINER_PORT:-8080}"
-    restart: "${PRODUCTION_BACKEND_RESTART_POLICY:-unless-stopped}"
     deploy:
       resources:
         limits:
@@ -48,6 +48,11 @@ services:
     environment:
       - TZ=UTC          # Фиксируем часовой пояс
       - DEBUG=true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${CONTAINER_PORT:-8080}/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     logging:
       driver: "json-file"
       options:
@@ -60,7 +65,6 @@ services:
     tmpfs:
       - "/app/tmp"
 
-
-volumes:
-  qiptflow-go-mod:
-    name: qiptflow-go-mod
+networks:
+  qiptflow-networks:
+    driver: bridge
