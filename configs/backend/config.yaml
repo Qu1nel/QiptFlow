@@ -1,5 +1,5 @@
 server:
   port: 8080
-  host: "localhost"
+  host: localhost
 
-log_level: "debug"
+log_level: debug

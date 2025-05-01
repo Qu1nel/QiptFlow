@@ -1,8 +1,6 @@
 package config
 
 import (
-	"os"
-	"path/filepath"
 	"sync"
 
 	"github.com/spf13/viper"
@@ -25,17 +23,8 @@ var (
 func Init(configPath string, useEnv bool) (*Config, error) {
 	var err error
 	once.Do(func() {
-		viper.SetConfigName("config")
 		viper.SetConfigType("yaml")
-
-		executablePath, err := os.Executable()
-		if err != nil {
-			panic(err)
-		}
-		executableDir := filepath.Dir(executablePath)
-		configDir := filepath.Join(executableDir, "configs", "backend")
-
-		viper.AddConfigPath(configDir)
+		viper.SetConfigFile("/app/configs/backend/config.yaml")
 
 		if useEnv {
 			viper.AutomaticEnv()  // Переопределяет yaml
