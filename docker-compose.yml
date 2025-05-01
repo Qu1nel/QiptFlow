@@ -1,7 +1,7 @@
 x-common-backend: &common-backend
   build: &common-build
-    context: ./backend
-    dockerfile: Dockerfile
+    context: .
+    dockerfile: ./backend/Dockerfile
   volumes:
     - qiptflow-go-mod:/go/pkg/mod
 
